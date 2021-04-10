@@ -9,12 +9,16 @@ class Game {
   constructor(WIDTH, HEIGHT) {
     this.WIDTH = WIDTH;
     this.HEIGHT = HEIGHT;
-    this.handleClick=this.handleClick.bind(this);
-    this.currPlayer=1;
+    this.handleClick = this.handleClick.bind(this);
+    this.currPlayer = 1;
   }
+
   inMemoryBoard = [];
 
-  start(){
+  start = () => {
+    let board = document.getElementById("board");
+    board.innerHTML = "";
+    this.inMemoryBoard = [];
     this.makeBoard();
     this.makeHtmlBoard();
   }
@@ -79,6 +83,8 @@ class Game {
   }
 
   endGame(msg) {
+    let colTop = document.getElementById("column-top");
+    colTop.className = "no-click";
     console.log("endGame runs")
     alert(msg);
   }
@@ -87,42 +93,42 @@ class Game {
     console.log("handleClick runs")
     // get x from ID of clicked cell
     const x = +evt.target.id;
-  
+
     // get next spot in column (if none, ignore click)
     const y = this.findSpotForCol(x);
     if (y === null) {
       return;
     }
-  
+
     // place piece in board and add to HTML table
     this.inMemoryBoard[y][x] = this.currPlayer;
     this.placeInTable(y, x);
-  
+
     // check for win
     console.log("this is", this)
     if (this.checkForWin()) {
       return this.endGame(`Player ${this.currPlayer} won!`);
       //never reaches player switch after winner or tie
     }
-  
+
     // check for tie
     if (this.inMemoryBoard.every(row => row.every(cell => cell))) {
       return this.endGame('Tie!');
     }
-  
+
     // switch players
     this.currPlayer = this.currPlayer === 1 ? 2 : 1;
   }
 
   checkForWin() {
     console.log("checkForWin runs")
-    const _win=(cells)=> {
+    const _win = (cells) => {
       //CR: _win was previously declared as a function, which changed 'this' for the every method below. switching to an arrow function allows the 'this' in every
       // to take the 'this' of Game rather than _win. alternative solution is to use .call
       // Check four cells to see if they're all color of current player
       //  - cells: list of four (y, x) cells
       //  - returns true if all are legal coordinates & all match currPlayer
-  
+
       return cells.every(
         ([y, x]) =>
           y >= 0 &&
@@ -132,7 +138,7 @@ class Game {
           this.inMemoryBoard[y][x] === this.currPlayer
       );
     }
-  
+
     for (let y = 0; y < this.HEIGHT; y++) {
       for (let x = 0; x < this.WIDTH; x++) {
         // get "check list" of 4 cells (starting here) for each of the different
@@ -141,7 +147,7 @@ class Game {
         const vert = [[y, x], [y + 1, x], [y + 2, x], [y + 3, x]];
         const diagDR = [[y, x], [y + 1, x + 1], [y + 2, x + 2], [y + 3, x + 3]];
         const diagDL = [[y, x], [y + 1, x - 1], [y + 2, x - 2], [y + 3, x - 3]];
-  
+
         // find winner (only checking each win-possibility as needed)
         if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
           return true;
@@ -151,9 +157,15 @@ class Game {
   }
 }
 
-let newGame=new Game(7,6);
+let newGame = new Game(7, 6);
 
-newGame.start();
+
+const startForm = document.getElementById('start-form');
+const startButton = document.getElementById('startButton');
+startButton.addEventListener("click", newGame.start);
+// add event listener to button
+// board appears onclick
+// board resets onclick
 
 // const WIDTH = 7;
 // const HEIGHT = 6;
